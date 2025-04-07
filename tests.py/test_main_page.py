@@ -1,6 +1,5 @@
 from page_objects.main_page import MainPage
 from page_objects.feed_page import FeedPage
-from selenium.webdriver.support.ui import WebDriverWait
 from conftest import *
 import allure
 
@@ -37,11 +36,8 @@ class TestMainPage:
     @allure.title('Проверка увеличения числа на счетчике при добавлении ингредиента в заказ')
     def test_changing_counter_for_ingredients_in_order_success(self, driver):
         main_page = MainPage(driver)
-        initial_count = main_page.get_count_of_ingredients() or '0'
         main_page.drag_and_drop_ingredient_to_order()
-        WebDriverWait(driver, 5).until(lambda _: int(main_page.get_count_of_ingredients()) > int(initial_count))
-        new_count = main_page.get_count_of_ingredients()
-        assert int(new_count) > int(initial_count)
+        assert main_page.get_count_of_ingredients() == '2'
 
     @allure.title('Залогиненный пользователь может оформить заказ')
     def test_making_order_by_authenticated_user_success(self, driver, set_user_tokens):
@@ -50,6 +46,3 @@ class TestMainPage:
         main_page.drag_and_drop_ingredient_to_order()
         main_page.click_on_button_make_order()
         assert main_page.check_displaying_of_confirmation_modal_of_order()
-        # Более надёжная проверка модального окна
-        assert WebDriverWait(driver, 10).until(lambda d: main_page.check_displaying_of_confirmation_modal_of_order(),
-            "Модальное окно подтверждения заказа не появилось"), "Не удалось оформить заказ"
